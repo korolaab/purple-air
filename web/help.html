@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+availabale json-api methods: <br>
+<hr align="left" width="25%" size="2" color="#000000">
+<h3>History from Time1 til Time2</h3>
+<code>[domain]/pa/json-api/telemetry?from={DateTime}&to={DateTime}</code><br>
+<code>{DateTime}</code> format YearMonthDayHourMinuteSeconds UTC<br>
+Example:<br>
+<a href="[domain]/pa/json-api/telemetry?from=20191114000000&to=20191114050000">
+Data from 2019-11-14 00:00:00 till 2019-11-14 05:00:00<br></a>
+<hr align="left" width="25%" size="2" color="#000000">
+<h3>Real time data with period of update 5 minutes</h3>
+<code>[domain]/pa/json-api/now</code><br>
+Example: 
+<a href="[domain]/pa/json-api/now">
+Realtime data<br></a>
+</body>
+</html>
