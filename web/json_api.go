@@ -42,9 +42,9 @@ func main(){
 	var db DB
 	json.Unmarshal(json_db,&db)
 	req:=string(b)
-	req= strings.ReplaceAll(req,"\n","%20")
-	req=strings.ReplaceAll(req,"\t","%20")
-	req=strings.ReplaceAll(req," ","%20")
+	req= strings.ReplaceAll(req,"\n","%20")//
+	req=strings.ReplaceAll(req,"\t","%20")//
+	req=strings.ReplaceAll(req," ","%20")//replasing with URL codes
 	req="http://"+db.ip+":8123?query="+req
 	http.HandleFunc("/",func(w http.ResponseWriter, r *http.Request){
 	method := r.URL.Path[len("/pa/json-api/"):]
@@ -54,7 +54,7 @@ func main(){
 		case "now":
 		    file,err = os.Open("/tmp/cached_pa_data.json")
             if(err !=nil){
-                fmt.Fprintf(w,"Please,wait new data will be soon received.")
+                fmt.Fprintf(w,"Please,wait new data will be soon available.")
                 return}
             defer file.Close()
             content,err:=ioutil.ReadAll(file)
@@ -66,16 +66,23 @@ func main(){
 		case "telemetry":
 			from:=r.URL.Query().Get("from")
 			to :=r.URL.Query().Get("to")
-                        w.Header().Set("Content-Type","application/json")
-			api_key := r.URL.Query().Get("key")
+			api_key := r.URL.Query().Get("key") /*1 api key from file*/
             if(string(my_api_key[:len(my_api_key)-1])==api_key){ 
             if(len(from)<1 || len(to)<1 || len(to)!=14 || len(from)!=14){
-				http.Redirect(w,r,url[:len(url)-len(method)]+"/help?"+"err=Time%20parameters%20not%20found%20or%20they%20are%20bad", 301)
+				http.Redirect(w,r,url[:len(url)-len(method)]+"/help?"+
+                "err=Time%20parameters%20not%20found%20or%20they%20are%20bad", 301)
+                /*checking length of datetime strings if they are bad redirect user to help page*/
 			}else{
-				from = from[:4] +"-"+from[4:6]+"-"+from[6:8]+"-"+from[8:10]+":"+from[10:12]+":"+from[12:14]
-				to = to[:4] +"-"+to[4:6]+"-"+to[6:8]+"-"+to[8:10]+":"+to[10:12]+":"+to[12:14]
-				req_str := req + "WHERE%20(Timestamp%20>=%20toDateTime(%27"+from+"%27)%20AND%20Timestamp<=%20toDateTime(%27"+to+"%27))%20ORDER%20BY%20Timestamp,sensor_id%20DESC%20%20FORMAT%20JSON"
-				//fmt.Fprintf(w,"%s",req_str)
+				from = from[:4]+"-"+from[4:6]+"-"+from[6:8]+
+                "-"+from[8:10]+":"+from[10:12]+":"+from[12:14] 
+                /*convert datetime YmdHMS to Y-m-d-H:M:S*/
+				to = to[:4] +"-"+to[4:6]+"-"+to[6:8]+
+                "-"+to[8:10]+":"+to[10:12]+":"+to[12:14]
+                /*convert datetime YmdHMS to Y-m-d-H:M:S*/
+				req_str:= strings.ReplaceAll(req,"TIME_from",from)
+                req_str = strings.ReplaceAll(req_str,"TIME_to",to)
+				/*insert datetime to request string*/
+                w.Header().Set("Content-Type","application/json")
 				resp,err:=http.Get(req_str)
                         if(err !=nil){
                                 log.Fatalln(err)
