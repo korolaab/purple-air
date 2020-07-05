@@ -1,0 +1,10 @@
+#!/bin/bash
+key=$(cat /var/www/purple_air/configs/tg_bot_key)
+last_data=$(clickhouse-client -u kriska123 -d purple_air -q "select
+parameter_name,round(median(value)) from sensors_telemetry where sensor_id==22037 and
+toHour(Timestamp) == toHour(subtractMinutes(now(),5)) group by parameter_name order by
+parameter_name" | sed "s/\t/%20/g" | tr "\n" "N" | sed "s/N/%0A/g")
+#last_data="Date%20for%20$(date |sed  "s/ /%20/g")%0A$last_data"
+link="https://api.telegram.org/bot$key/sendMessage?chat_id=@Stanford_PM&text=$last_data"
+#echo $link
+wget $link -O - -q   
