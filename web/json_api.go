@@ -18,7 +18,7 @@ type DB struct{
 
 
 func main(){
-	domain_name:="http://95.216.164.197"
+	domain_name:="<domain>"
 
 	file,err:=os.Open("web/request.sql")
         if err != nil{
